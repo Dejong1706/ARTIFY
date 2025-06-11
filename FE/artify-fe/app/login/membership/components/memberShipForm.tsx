@@ -14,6 +14,8 @@ const MemberShipForm = () => {
   const [formItem, setFormItem] =
     useState<defaultMemberDataType>(defaultMemberData);
   const [error, setError] = useState("");
+  const [emailCheck, setEmailCheck] = useState(false);
+  const [passwordCheck, setPasswordCheck] = useState(false);
 
   const router = useRouter();
 
@@ -43,6 +45,33 @@ const MemberShipForm = () => {
       } else {
         setError("에러 발생");
       }
+    }
+  };
+
+  const onCheck = async () => {
+    try {
+      const response = await axios.post(API.EMAILCHECK, {
+        email: formItem.email,
+      });
+      if (response.status === 200) {
+        setEmailCheck(true);
+      }
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        alert("이미 등록된 이메일 입니다.");
+      } else if (error.response?.status === 500) {
+        setError(error.response?.msg);
+      } else {
+        setError("에러 발생");
+      }
+    }
+  };
+
+  const onPasswordCheck = () => {
+    if (formItem.password === formItem.passwordCheck) {
+      setPasswordCheck(true);
+    } else {
+      setPasswordCheck(false);
     }
   };
 
@@ -76,11 +105,15 @@ const MemberShipForm = () => {
             <Button
               title="Verify"
               styles="bg-black text-white w-full sm:w-[5rem] h-[2.5rem] rounded-lg mt-2 sm:mt-0 hover:cursor-pointer"
+              onClick={onCheck}
             />
           </div>
-          <p className="text-green-600 text-xs sm:text-sm">
-            ※ Enable Use Account Email :)
-          </p>
+          {emailCheck && (
+            <p className="text-green-600 text-xs sm:text-sm">
+              ※ Enable Use Account Email :)
+            </p>
+          )}
+
           <div className="flex flex-col gap-2">
             <div className="flex flex-col sm:flex-row items-center gap-2 ">
               <Input
@@ -104,14 +137,14 @@ const MemberShipForm = () => {
               <Button
                 title="Verify"
                 styles="bg-black text-white w-full sm:w-[5rem] h-[2.5rem] rounded-lg mt-2 sm:mt-0 hover:cursor-pointer"
-                onClick={() => {
-                  console.log("Click");
-                }}
+                onClick={onPasswordCheck}
               />
             </div>
-            <p className="text-green-600 text-xs sm:text-sm">
-              ※ Enable Use Account Password :)
-            </p>
+            {passwordCheck && (
+              <p className="text-green-600 text-xs sm:text-sm">
+                ※ Enable Use Account Password :)
+              </p>
+            )}
           </div>
         </div>
         {error && (

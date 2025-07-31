@@ -5,6 +5,8 @@ const API = {
   LOGOUT: `${BASE_URL}/api/auth/logout`,
   SIGNUP: `${BASE_URL}/api/auth/signup`,
   EMAILCHECK: `${BASE_URL}/api/auth/email/check`,
+
+  DICTIONARY: `${BASE_URL}/api/dict`,
 };
 
 export default API;

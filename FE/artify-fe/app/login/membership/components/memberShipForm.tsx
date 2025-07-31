@@ -49,6 +49,12 @@ const MemberShipForm = () => {
   };
 
   const onCheck = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formItem.email)) {
+      alert("이메일 형식을 맞춰주세요.");
+      return;
+    }
+
     try {
       const response = await axios.post(API.EMAILCHECK, {
         email: formItem.email,
@@ -68,13 +74,32 @@ const MemberShipForm = () => {
   };
 
   const onPasswordCheck = () => {
+    if (formItem.password !== formItem.passwordCheck) {
+      alert("비밀번호가 일치하지 않습니다.");
+      setPasswordCheck(false);
+      return;
+    }
+
+    if (formItem.password.length < 6) {
+      alert("비밀번호는 6자리 이상이어야 합니다.");
+      setPasswordCheck(false);
+      return;
+    }
+
+    const hasLetter = /[A-Za-z]/.test(formItem.password);
+    const hasNumber = /[0-9]/.test(formItem.password);
+    if (!hasLetter || !hasNumber) {
+      alert("비밀번호 조합은 영문과 숫자가 섞여야 합니다.");
+      setPasswordCheck(false);
+      return;
+    }
+
     if (formItem.password === formItem.passwordCheck) {
       setPasswordCheck(true);
     } else {
       setPasswordCheck(false);
     }
   };
-
   return (
     <div className="w-full h-full flex items-center justify-center z-20">
       <div className="w-full max-w-[500px] bg-white p-4 sm:p-6 rounded-xl shadow-lg flex flex-col items-center mx-2">

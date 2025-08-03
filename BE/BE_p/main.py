@@ -1,3 +1,4 @@
+import uuid
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -36,12 +37,33 @@ app.add_middleware(
 #                   API 설정
 # ================================================
 
-@app.get("/translate", tags=['Core'])
+@app.post("/translate", tags=['Core'])
 def translate(inputs: TranslateInput):
-    ''' Translation API 입니다.'''
+    ''' Translation Interface API 입니다.'''
+    config = inputs.info
+    template = config['template']
+    template_variable = config['template_variable']
+
+    for key, value in template_variable.items():
+        template = template.replace(f'{{{key}}}', value)
+    
+    user_template = template
+    
     try:
-        translate_module = Translate(config=inputs.params)
-        result = translate_module.run(inputs.params['input_text'], inputs.params['language'], inputs.params['temperature'])
-        return result
+        translate_module = Translate(params=config['params'])
+
+        result = translate_module.run(
+            text=user_template, 
+            language=config['language']['to']
+        )
+
+        response = {
+            'uuid': str(uuid.uuid4()),
+            'content': {
+                'before': user_template,
+                'after': result
+            }
+        }
+        return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
